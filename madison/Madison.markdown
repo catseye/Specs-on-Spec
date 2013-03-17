@@ -55,12 +55,12 @@ program consists of a `let` block which contains the rules
 and a `rewrite` admonition which specifies the term to be re-
 written.  An example follows.
 
-| let
-|   leftmost(tree(X,Y)) -> leftmost(X)
-|   leftmost(leaf(X))   -> X
-| in
-|   rewrite leftmost(tree(tree(leaf(alice),leaf(grace)),leaf(dan)))
-= alice
+    | let
+    |   leftmost(tree(X,Y)) -> leftmost(X)
+    |   leftmost(leaf(X))   -> X
+    | in
+    |   rewrite leftmost(tree(tree(leaf(alice),leaf(grace)),leaf(dan)))
+    = alice
 
 In the above example, there are two rules for the constructor
 `leftmost/1`.  The first is applied to the outer tree to obtain
@@ -79,8 +79,8 @@ trying intentionally to avoid saying "simplest program".  In fact,
 technically no `let` block is required, so you can write some
 really trivial Madison programs, like the following:
 
-| rewrite cat
-= cat
+    | rewrite cat
+    = cat
 
 I think that just about covers the core term-rewriting language.
 Term-rewriting is Turing-complete, so Madison is too.  If you
@@ -119,18 +119,18 @@ checked, Madison has a `theorem..proof..qed` form.  To demonstrate
 this form, let's use Madison to prove that 2 + 2 = 4, using Peano
 arithmetic.
 
-| let
-|   add(s(X),Y) -> add(X,s(Y))
-|   add(z,Y)    -> Y
-| in theorem
-|   add(s(s(z)),s(s(z))) ~> s(s(s(s(z))))
-| proof
-|   add(s(s(z)),s(s(z)))
-|   -> add(s(z),s(s(s(z)))) [by add.1]
-|   -> add(z,s(s(s(s(z))))) [by add.1]
-|   -> s(s(s(s(z))))        [by add.2]
-| qed
-= true
+    | let
+    |   add(s(X),Y) -> add(X,s(Y))
+    |   add(z,Y)    -> Y
+    | in theorem
+    |   add(s(s(z)),s(s(z))) ~> s(s(s(s(z))))
+    | proof
+    |   add(s(s(z)),s(s(z)))
+    |   -> add(s(z),s(s(s(z)))) [by add.1]
+    |   -> add(z,s(s(s(s(z))))) [by add.1]
+    |   -> s(s(s(s(z))))        [by add.2]
+    | qed
+    = true
 
 The basic syntax should be fairly apparent.  The `theorem` block
 contains the statement to be proved.  The `~>` means "rewrites
@@ -152,18 +152,18 @@ Madison should inform you of this fact.  2 + 3, for example,
 does not equal 4, and it can pinpoint exactly where you went
 wrong should you come to this conclusion:
 
-| let
-|   add(s(X),Y) -> add(X,s(Y))
-|   add(z,Y)    -> Y
-| in theorem
-|   add(s(s(z)),s(s(s(z)))) ~> s(s(s(s(z))))
-| proof
-|   add(s(s(z)),s(s(s(z))))
-|   -> add(s(z),s(s(s(s(z))))) [by add.1]
-|   -> add(z,s(s(s(s(z)))))    [by add.1]
-|   -> s(s(s(s(z))))           [by add.2]
-| qed
-? Error in proof [line 6]: step 2 does not follow from applying [add.1] to previous step
+    | let
+    |   add(s(X),Y) -> add(X,s(Y))
+    |   add(z,Y)    -> Y
+    | in theorem
+    |   add(s(s(z)),s(s(s(z)))) ~> s(s(s(s(z))))
+    | proof
+    |   add(s(s(z)),s(s(s(z))))
+    |   -> add(s(z),s(s(s(s(z))))) [by add.1]
+    |   -> add(z,s(s(s(s(z)))))    [by add.1]
+    |   -> s(s(s(s(z))))           [by add.2]
+    | qed
+    ? Error in proof [line 6]: step 2 does not follow from applying [add.1] to previous step
 
 Now, while these *are* proofs, they don't tell us much about the
 properties of the terms and rules involved, because they are not
@@ -228,13 +228,13 @@ What's actually interesting is when you define a restricted
 set of forms that terms can take, and you distinguish terms inside
 this set of forms from the terms outside the set.  For example,
 
-| let
-|   boolean(true)  -> true
-|   boolean(false) -> true
-|   boolean(_)     -> false
-| in
-|   rewrite boolean(false)
-= true
+    | let
+    |   boolean(true)  -> true
+    |   boolean(false) -> true
+    |   boolean(_)     -> false
+    | in
+    |   rewrite boolean(false)
+    = true
 
 We call a set of forms like this a _type_.  As you can see, we
 have basically written a predicate that defines our type.  If any
@@ -300,24 +300,24 @@ nowhere else.
 So, to define a type, we write our type rules in a `type..in`
 block, like the following.
 
-| type boolean is
-|   boolean(true)  -> true
-|   boolean(false) -> true
-| in
-|   rewrite boolean(false)
-= true
+    | type boolean is
+    |   boolean(true)  -> true
+    |   boolean(false) -> true
+    | in
+    |   rewrite boolean(false)
+    = true
 
 As you can see, the wildcard reduction to false can be omitted for
 brevity.  (In other words, "Nothing else is a boolean" is implied.)
 And, the `boolean` constructor can be used for rewriting in a term
 just like any other plain, non-`type`-blessed rewrite rule.
 
-| type boolean is
-|   boolean(true)  -> true
-|   boolean(false) -> true
-| in
-|   rewrite boolean(tree(leaf(sabrina),leaf(joe)))
-= false
+    | type boolean is
+    |   boolean(true)  -> true
+    |   boolean(false) -> true
+    | in
+    |   rewrite boolean(tree(leaf(sabrina),leaf(joe)))
+    = false
 
 Here are the rules that the type-defining rules must conform to.
 If any of these rules are violated in the `type` block, the Madison
@@ -327,42 +327,42 @@ from them.
 Once a type is defined, it cannot be defined further in a regular,
 non-type-defining rewriting rule.
 
-| type boolean is
-|   boolean(true)  -> true
-|   boolean(false) -> true
-| in let
-|   boolean(red) -> green
-| in
-|   rewrite boolean(red)
-? Constructor "boolean" used in rule but already defined as a type
+    | type boolean is
+    |   boolean(true)  -> true
+    |   boolean(false) -> true
+    | in let
+    |   boolean(red) -> green
+    | in
+    |   rewrite boolean(red)
+    ? Constructor "boolean" used in rule but already defined as a type
 
 The constructor in the l.h.s. must be the same in all rules.
 
-| type foo is
-|   foo(bar) -> true
-|   baz(bar) -> true
-| in
-|   rewrite cat
-? In type "foo", constructor "bar" used on l.h.s. of rule
+    | type foo is
+    |   foo(bar) -> true
+    |   baz(bar) -> true
+    | in
+    |   rewrite cat
+    ? In type "foo", constructor "bar" used on l.h.s. of rule
 
 The constructor used in the rules must be arity 1 (i.e. have exactly
 one subterm.)
 
-| type foo is
-|   foo(bar,X) -> true
-| in
-|   rewrite cat
-? In type "foo", constructor has arity greater than one
+    | type foo is
+    |   foo(bar,X) -> true
+    | in
+    |   rewrite cat
+    ? In type "foo", constructor has arity greater than one
 
 It is considered an error if the predicate rules ever rewrite, inside
 the `type` block, to anything besides the atoms `true` or `false`.
 
-| type foo is
-|   foo(bar) -> true
-|   foo(tree(X)) -> bar
-| in
-|   rewrite cat
-? In type "foo", rule reduces to "bar" instead of true or false
+    | type foo is
+    |   foo(bar) -> true
+    |   foo(tree(X)) -> bar
+    | in
+    |   rewrite cat
+    ? In type "foo", rule reduces to "bar" instead of true or false
 
 The r.h.s.'s of the rules of the type predicate must *always*
 rewrite to `true` or `false`.  That means, if we can't prove that
@@ -373,14 +373,14 @@ we insist that they have.
 They may involve type predicates that have previously been
 established.
 
-| type boolean is
-|   boolean(true)  -> true
-|   boolean(false) -> true
-| in type boolbox is
-|   boolbox(box(X)) -> boolean(X)
-| in
-|   rewrite boolbox(box(true))
-= true
+    | type boolean is
+    |   boolean(true)  -> true
+    |   boolean(false) -> true
+    | in type boolbox is
+    |   boolbox(box(X)) -> boolean(X)
+    | in
+    |   rewrite boolbox(box(true))
+    = true
 
 They may involve certain, pre-defined rewriting rules which can
 be thought of as operators on values of boolean type (which, honestly,
@@ -389,56 +389,56 @@ such pre-defined rewriting rule: `and(X,Y)`, where `X` and `Y` are
 booleans, and which rewrites to a boolean, using the standard truth
 table rules for boolean conjunction.
 
-| type boolean is
-|   boolean(true)  -> true
-|   boolean(false) -> true
-| in type boolpair is
-|   boolpair(pair(X,Y)) -> and(boolean(X),boolean(Y))
-| in
-|   rewrite boolpair(pair(true,false))
-= true
+    | type boolean is
+    |   boolean(true)  -> true
+    |   boolean(false) -> true
+    | in type boolpair is
+    |   boolpair(pair(X,Y)) -> and(boolean(X),boolean(Y))
+    | in
+    |   rewrite boolpair(pair(true,false))
+    = true
 
-| type boolean is
-|   boolean(true)  -> true
-|   boolean(false) -> true
-| in type boolpair is
-|   boolpair(pair(X,Y)) -> and(boolean(X),boolean(Y))
-| in
-|   rewrite boolpair(pair(true,cheese))
-= false
+    | type boolean is
+    |   boolean(true)  -> true
+    |   boolean(false) -> true
+    | in type boolpair is
+    |   boolpair(pair(X,Y)) -> and(boolean(X),boolean(Y))
+    | in
+    |   rewrite boolpair(pair(true,cheese))
+    = false
 
 Lastly, the r.h.s. of a type predicate rule can refer to the self-same
 type being defined, but *only* under certain conditions.  Namely,
 the rewriting must "shrink" the term being rewritten.  This is what
 lets us inductively define types.
 
-| type nat is
-|   nat(z)    -> true
-|   nat(s(X)) -> nat(X)
-| in
-|   rewrite nat(s(s(z)))
-= true
+    | type nat is
+    |   nat(z)    -> true
+    |   nat(s(X)) -> nat(X)
+    | in
+    |   rewrite nat(s(s(z)))
+    = true
 
-| type nat is
-|   nat(z)    -> true
-|   nat(s(X)) -> nat(s(X))
-| in
-|   rewrite nat(s(s(z)))
-? Type not well-founded: recursive rewrite does not decrease in [foo.2]
+    | type nat is
+    |   nat(z)    -> true
+    |   nat(s(X)) -> nat(s(X))
+    | in
+    |   rewrite nat(s(s(z)))
+    ? Type not well-founded: recursive rewrite does not decrease in [foo.2]
 
-| type nat is
-|   nat(z)    -> true
-|   nat(s(X)) -> nat(s(s(X)))
-| in
-|   rewrite nat(s(s(z)))
-? Type not well-founded: recursive rewrite does not decrease in [foo.2]
+    | type nat is
+    |   nat(z)    -> true
+    |   nat(s(X)) -> nat(s(s(X)))
+    | in
+    |   rewrite nat(s(s(z)))
+    ? Type not well-founded: recursive rewrite does not decrease in [foo.2]
 
-| type bad
-|   bad(leaf(X)) -> true
-|   bad(tree(X,Y)) -> and(bad(X),bad(tree(Y,Y))
-| in
-|   rewrite whatever
-? Type not well-founded: recursive rewrite does not decrease in [bad.2]
+    | type bad
+    |   bad(leaf(X)) -> true
+    |   bad(tree(X,Y)) -> and(bad(X),bad(tree(Y,Y))
+    | in
+    |   rewrite whatever
+    ? Type not well-founded: recursive rewrite does not decrease in [bad.2]
 
 We can check this by looking at all the rewrite rules in the
 definition of the type that are recursive, i.e. that contain on
@@ -466,27 +466,27 @@ a starting point on which we can build.  We will give some rewrite rules
 for a constructor `not`, and prove that this constructor always reduces
 to a boolean when given a boolean.
 
-| type boolean is
-|   boolean(true)  -> true
-|   boolean(false) -> true
-| in let
-|   not(true)  -> false
-|   not(false) -> true
-|   not(_)     -> undefined
-| in theorem
-|   forall X where boolean(X)
-|     boolean(not(X)) ~> true
-| proof
-|   case X = true
-|     boolean(not(true))
-|     -> boolean(true)   [by not.1]
-|     -> true            [by boolean.1]
-|   case X = false
-|     boolean(not(false))
-|     -> boolean(false)  [by not.2]
-|     -> true            [by boolean.2]
-| qed
-= true
+    | type boolean is
+    |   boolean(true)  -> true
+    |   boolean(false) -> true
+    | in let
+    |   not(true)  -> false
+    |   not(false) -> true
+    |   not(_)     -> undefined
+    | in theorem
+    |   forall X where boolean(X)
+    |     boolean(not(X)) ~> true
+    | proof
+    |   case X = true
+    |     boolean(not(true))
+    |     -> boolean(true)   [by not.1]
+    |     -> true            [by boolean.1]
+    |   case X = false
+    |     boolean(not(false))
+    |     -> boolean(false)  [by not.2]
+    |     -> true            [by boolean.2]
+    | qed
+    = true
 
 As you can see, proofs using universally quantified variables
 need to make use of _cases_.  We know this proof is sound, because
@@ -507,34 +507,34 @@ can use it in the definition of well-founded inductive types;
 but this code proves that it is indeed well-founded, and it
 doesn't rely on it already being defined.)
 
-| let
-|   and(true,true) -> true
-|   and(_,_)       -> false
-| in theorem
-|   forall X where boolean(X)
-|     forall Y where boolean(Y)
-|       boolean(and(X,Y)) ~> true
-| proof
-|   case X = true
-|     case Y = true
-|       boolean(and(true,true))
-|       -> boolean(true)        [by and.1]
-|       -> true                 [by boolean.1]
-|     case Y = false
-|       boolean(and(true,false))
-|       -> boolean(false)       [by and.2]
-|       -> true                 [by boolean.2]
-|   case X = false
-|     case Y = true
-|       boolean(and(false,true))
-|       -> boolean(false)       [by and.2]
-|       -> true                 [by boolean.2]
-|     case Y = false
-|       boolean(and(false,false))
-|       -> boolean(false)       [by and.2]
-|       -> true                 [by boolean.2]
-| qed
-= true
+    | let
+    |   and(true,true) -> true
+    |   and(_,_)       -> false
+    | in theorem
+    |   forall X where boolean(X)
+    |     forall Y where boolean(Y)
+    |       boolean(and(X,Y)) ~> true
+    | proof
+    |   case X = true
+    |     case Y = true
+    |       boolean(and(true,true))
+    |       -> boolean(true)        [by and.1]
+    |       -> true                 [by boolean.1]
+    |     case Y = false
+    |       boolean(and(true,false))
+    |       -> boolean(false)       [by and.2]
+    |       -> true                 [by boolean.2]
+    |   case X = false
+    |     case Y = true
+    |       boolean(and(false,true))
+    |       -> boolean(false)       [by and.2]
+    |       -> true                 [by boolean.2]
+    |     case Y = false
+    |       boolean(and(false,false))
+    |       -> boolean(false)       [by and.2]
+    |       -> true                 [by boolean.2]
+    | qed
+    = true
 
 Unwieldy, you say!  And you are correct.  But making something
 easy to use was never my goal.
@@ -551,57 +551,57 @@ Anyway, since we were speaking of inductively defined types
 previously, let's do that now.  With the help of `and()`, here is
 a type for binary trees.
 
-| type tree is
-|   tree(leaf)        -> true
-|   tree(branch(X,Y)) -> and(tree(X),tree(Y))
-| in
-|   rewrite tree(branch(leaf,leaf))
-= true
+    | type tree is
+    |   tree(leaf)        -> true
+    |   tree(branch(X,Y)) -> and(tree(X),tree(Y))
+    | in
+    |   rewrite tree(branch(leaf,leaf))
+    = true
 
 We can define some rewrite rules on trees.  To start small,
 let's define a simple predicate on trees.
 
-| type tree is
-|   tree(leaf)        -> true
-|   tree(branch(X,Y)) -> and(tree(X),tree(Y))
-| in let
-|   empty(leaf)        -> true
-|   empty(branch(_,_)) -> false
-| in empty(branch(branch(leaf,leaf),leaf))
-= false
+    | type tree is
+    |   tree(leaf)        -> true
+    |   tree(branch(X,Y)) -> and(tree(X),tree(Y))
+    | in let
+    |   empty(leaf)        -> true
+    |   empty(branch(_,_)) -> false
+    | in empty(branch(branch(leaf,leaf),leaf))
+    = false
 
-| type tree is
-|   tree(leaf)        -> true
-|   tree(branch(X,Y)) -> and(tree(X),tree(Y))
-| in let
-|   empty(leaf)        -> true
-|   empty(branch(_,_)) -> false
-| in empty(leaf)
-= true
+    | type tree is
+    |   tree(leaf)        -> true
+    |   tree(branch(X,Y)) -> and(tree(X),tree(Y))
+    | in let
+    |   empty(leaf)        -> true
+    |   empty(branch(_,_)) -> false
+    | in empty(leaf)
+    = true
 
 Now let's prove that our predicate always rewrites to a boolean
 (i.e. that it has boolean type) when its argument is a tree.
 
-| type tree is
-|   tree(leaf)        -> true
-|   tree(branch(X,Y)) -> and(tree(X),tree(Y))
-| in let
-|   empty(leaf)        -> true
-|   empty(branch(_,_)) -> false
-| in theorem
-|   forall X where tree(X)
-|     boolean(empty(X)) ~> true
-| proof
-|   case X = leaf
-|     boolean(empty(leaf))
-|     -> boolean(true)  [by empty.1]
-|     -> true           [by boolean.1]
-|   case X = branch(S,T)
-|     boolean(empty(branch(S,T)))
-|     -> boolean(false) [by empty.2]
-|     -> true           [by boolean.2]
-| qed
-= true
+    | type tree is
+    |   tree(leaf)        -> true
+    |   tree(branch(X,Y)) -> and(tree(X),tree(Y))
+    | in let
+    |   empty(leaf)        -> true
+    |   empty(branch(_,_)) -> false
+    | in theorem
+    |   forall X where tree(X)
+    |     boolean(empty(X)) ~> true
+    | proof
+    |   case X = leaf
+    |     boolean(empty(leaf))
+    |     -> boolean(true)  [by empty.1]
+    |     -> true           [by boolean.1]
+    |   case X = branch(S,T)
+    |     boolean(empty(branch(S,T)))
+    |     -> boolean(false) [by empty.2]
+    |     -> true           [by boolean.2]
+    | qed
+    = true
 
 This isn't really a proof by induction yet, but it's getting closer.
 This is still really us examining the cases to determine the type.
@@ -621,28 +621,28 @@ something's type.  We'll prove something that actually walks and talks
 like a real (albeit simple) theorem: the reflection of the reflection
 of any binary tree is the same as the original tree.
 
-| type tree is
-|   tree(leaf)        -> true
-|   tree(branch(X,Y)) -> and(tree(X),tree(Y))
-| in let
-|   reflect(leaf)        -> leaf
-|   reflect(branch(A,B)) -> branch(reflect(B),reflect(A))
-| in theorem
-|   forall X where tree(X)
-|     reflect(reflect(X)) ~> X
-| proof
-|   case X = leaf
-|     reflect(reflect(leaf))
-|     -> reflect(leaf)        [by reflect.1]
-|     -> leaf                 [by reflect.1]
-|   case X = branch(S, T)
-|     reflect(reflect(branch(S, T)))
-|     -> reflect(branch(reflect(T),reflect(S)))          [by reflect.2]
-|     -> branch(reflect(reflect(S)),reflect(reflect(T))) [by reflect.2]
-|     -> branch(S,reflect(reflect(T)))                   [by IH]
-|     -> branch(S,T)                                     [by IH]
-| qed
-= true
+    | type tree is
+    |   tree(leaf)        -> true
+    |   tree(branch(X,Y)) -> and(tree(X),tree(Y))
+    | in let
+    |   reflect(leaf)        -> leaf
+    |   reflect(branch(A,B)) -> branch(reflect(B),reflect(A))
+    | in theorem
+    |   forall X where tree(X)
+    |     reflect(reflect(X)) ~> X
+    | proof
+    |   case X = leaf
+    |     reflect(reflect(leaf))
+    |     -> reflect(leaf)        [by reflect.1]
+    |     -> leaf                 [by reflect.1]
+    |   case X = branch(S, T)
+    |     reflect(reflect(branch(S, T)))
+    |     -> reflect(branch(reflect(T),reflect(S)))          [by reflect.2]
+    |     -> branch(reflect(reflect(S)),reflect(reflect(T))) [by reflect.2]
+    |     -> branch(S,reflect(reflect(T)))                   [by IH]
+    |     -> branch(S,T)                                     [by IH]
+    | qed
+    = true
 
 Finally, this is a proof using induction!  In the [by IH] clauses,
 IH stands for "inductive hypothesis", the hypothesis that we may
