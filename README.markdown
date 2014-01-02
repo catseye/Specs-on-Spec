@@ -27,6 +27,7 @@ specification.)  The exceptions, which can be considered "works in progress",
 are:
     
 *   **Irishsea**, which is largely a set of notes for a livecoding language.
+*   **Sampo**, which is largely a set of notes for a production language.
 
 The specification documents are copyrighted by their respective authors.  Not
 that I mind if you fork this repo and submit pull requests to fix errors or
